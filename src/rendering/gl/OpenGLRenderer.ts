@@ -1,4 +1,4 @@
-import {mat4, vec4} from 'gl-matrix';
+import {mat4, vec4, vec3} from 'gl-matrix';
 import Drawable from './Drawable';
 import Camera from '../../Camera';
 import {gl} from '../../globals';
@@ -22,9 +22,18 @@ class OpenGLRenderer {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   }
 
-  render(camera: Camera, prog: ShaderProgram, drawables: Array<Drawable>, time: number) {
-    prog.setEyeRefUp(camera.controls.eye, camera.controls.center, camera.controls.up);
-    prog.setTime(time);
+  render(camera: Camera, prog: ShaderProgram, drawables: Array<Drawable>, unifTime: number, unifCameraPos: vec3) {
+    let model = mat4.create();
+    let viewProj = mat4.create();
+    // let color = vec4.fromValues(1, 0, 0, 1); (old hardcoded red)
+
+    mat4.identity(model);
+    mat4.multiply(viewProj, camera.projectionMatrix, camera.viewMatrix);
+    prog.setModelMatrix(model);
+    prog.setViewProjMatrix(viewProj);
+    prog.setTime(unifTime);
+    prog.setCameraPos(unifCameraPos);
+    // prog.setGeometryColor(color); (don't want color to be overriden by red)
 
     for (let drawable of drawables) {
       prog.draw(drawable);

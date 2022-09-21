@@ -1,4 +1,4 @@
-import {vec2, vec3, vec4, mat4} from 'gl-matrix';
+import {vec4, vec3, mat4} from 'gl-matrix';
 import Drawable from './Drawable';
 import {gl} from '../../globals';
 
@@ -23,12 +23,28 @@ class ShaderProgram {
 
   attrPos: number;
   attrNor: number;
+  attrCol: number;
 
-  unifRef: WebGLUniformLocation;
-  unifEye: WebGLUniformLocation;
-  unifUp: WebGLUniformLocation;
-  unifDimensions: WebGLUniformLocation;
-  unifTime: WebGLUniformLocation;
+  unifModel: WebGLUniformLocation;
+  unifModelInvTr: WebGLUniformLocation;
+  unifViewProj: WebGLUniformLocation;
+  unifTimeFs: WebGLUniformLocation;
+  unifTimeVs: WebGLUniformLocation;
+  unifCameraPos: WebGLUniformLocation;
+
+  unifSmokeInnerColor: WebGLUniformLocation;
+  unifSmokeMiddleColor: WebGLUniformLocation;
+  unifSmokeOuterColor: WebGLUniformLocation;
+  unifFireInnerColor: WebGLUniformLocation;
+  unifFireMiddleColor: WebGLUniformLocation;
+  unifFireOuterColor: WebGLUniformLocation;
+
+  unifBurnSpeed: WebGLUniformLocation;
+  unifFireDensity: WebGLUniformLocation;
+
+  unifIsMusicPlaying: WebGLUniformLocation;
+  unifAudioHighFreq: WebGLUniformLocation;
+  unifAudioLowFreq: WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -42,11 +58,29 @@ class ShaderProgram {
     }
 
     this.attrPos = gl.getAttribLocation(this.prog, "vs_Pos");
-    this.unifEye   = gl.getUniformLocation(this.prog, "u_Eye");
-    this.unifRef   = gl.getUniformLocation(this.prog, "u_Ref");
-    this.unifUp   = gl.getUniformLocation(this.prog, "u_Up");
-    this.unifDimensions   = gl.getUniformLocation(this.prog, "u_Dimensions");
-    this.unifTime   = gl.getUniformLocation(this.prog, "u_Time");
+    this.attrNor = gl.getAttribLocation(this.prog, "vs_Nor");
+    this.attrCol = gl.getAttribLocation(this.prog, "vs_Col");
+    this.unifTimeFs = gl.getUniformLocation(this.prog, "u_TimeFs");
+    this.unifTimeVs = gl.getUniformLocation(this.prog, "u_TimeVs");
+    this.unifCameraPos = gl.getUniformLocation(this.prog, "u_CameraPos");
+    this.unifModel      = gl.getUniformLocation(this.prog, "u_Model");
+    this.unifModelInvTr = gl.getUniformLocation(this.prog, "u_ModelInvTr");
+    this.unifViewProj   = gl.getUniformLocation(this.prog, "u_ViewProj");
+
+    this.unifSmokeInnerColor      = gl.getUniformLocation(this.prog, "u_SmokeInnerColor");
+    this.unifSmokeMiddleColor      = gl.getUniformLocation(this.prog, "u_SmokeMiddleColor");
+    this.unifSmokeOuterColor      = gl.getUniformLocation(this.prog, "u_SmokeOuterColor");
+    this.unifFireInnerColor      = gl.getUniformLocation(this.prog, "u_FireInnerColor");
+    this.unifFireMiddleColor      = gl.getUniformLocation(this.prog, "u_FireMiddleColor");
+    this.unifFireOuterColor      = gl.getUniformLocation(this.prog, "u_FireOuterColor");
+
+    this.unifBurnSpeed      = gl.getUniformLocation(this.prog, "u_BurnSpeed");
+    this.unifFireDensity      = gl.getUniformLocation(this.prog, "u_FireDensity");
+
+    this.unifIsMusicPlaying      = gl.getUniformLocation(this.prog, "u_IsMusicPlaying");
+    this.unifAudioHighFreq      = gl.getUniformLocation(this.prog, "u_AudioHighFreq");
+    this.unifAudioLowFreq      = gl.getUniformLocation(this.prog, "u_AudioLowFreq");
+
   }
 
   use() {
@@ -56,30 +90,110 @@ class ShaderProgram {
     }
   }
 
-  setEyeRefUp(eye: vec3, ref: vec3, up: vec3) {
+  setTime(time: number) {
     this.use();
-    if(this.unifEye !== -1) {
-      gl.uniform3f(this.unifEye, eye[0], eye[1], eye[2]);
+    if (this.unifTimeFs !== -1) {
+      gl.uniform1i(this.unifTimeFs, time);
     }
-    if(this.unifRef !== -1) {
-      gl.uniform3f(this.unifRef, ref[0], ref[1], ref[2]);
-    }
-    if(this.unifUp !== -1) {
-      gl.uniform3f(this.unifUp, up[0], up[1], up[2]);
+    if (this.unifTimeVs !== -1) {
+      gl.uniform1i(this.unifTimeVs, time);
     }
   }
 
-  setDimensions(width: number, height: number) {
+  setCameraPos(cameraPos: vec3) {
     this.use();
-    if(this.unifDimensions !== -1) {
-      gl.uniform2f(this.unifDimensions, width, height);
+    if (this.unifCameraPos !== -1) {
+      gl.uniform3fv(this.unifCameraPos, cameraPos);
+    }
+  }
+  
+  setModelMatrix(model: mat4) {
+    this.use();
+    if (this.unifModel !== -1) {
+      gl.uniformMatrix4fv(this.unifModel, false, model);
+    }
+
+    if (this.unifModelInvTr !== -1) {
+      let modelinvtr: mat4 = mat4.create();
+      mat4.transpose(modelinvtr, model);
+      mat4.invert(modelinvtr, modelinvtr);
+      gl.uniformMatrix4fv(this.unifModelInvTr, false, modelinvtr);
     }
   }
 
-  setTime(t: number) {
+  setViewProjMatrix(vp: mat4) {
     this.use();
-    if(this.unifTime !== -1) {
-      gl.uniform1f(this.unifTime, t);
+    if (this.unifViewProj !== -1) {
+      gl.uniformMatrix4fv(this.unifViewProj, false, vp);
+    }
+  }
+
+  setSmokeInnerColor(color: vec4) {
+    this.use();
+    if (this.unifSmokeInnerColor !== -1) {
+      gl.uniform4fv(this.unifSmokeInnerColor, color);
+    }
+  }
+  setSmokeMiddleColor(color: vec4) {
+    this.use();
+    if (this.unifSmokeMiddleColor !== -1) {
+      gl.uniform4fv(this.unifSmokeMiddleColor, color);
+    }
+  }
+  setSmokeOuterColor(color: vec4) {
+    this.use();
+    if (this.unifSmokeOuterColor !== -1) {
+      gl.uniform4fv(this.unifSmokeOuterColor, color);
+    }
+  }
+  setFireInnerColor(color: vec4) {
+    this.use();
+    if (this.unifFireInnerColor !== -1) {
+      gl.uniform4fv(this.unifFireInnerColor, color);
+    }
+  }
+  setFireMiddleColor(color: vec4) {
+    this.use();
+    if (this.unifFireMiddleColor !== -1) {
+      gl.uniform4fv(this.unifFireMiddleColor, color);
+    }
+  }
+  setFireOuterColor(color: vec4) {
+    this.use();
+    if (this.unifFireOuterColor !== -1) {
+      gl.uniform4fv(this.unifFireOuterColor, color);
+    }
+  }
+
+  setBurnSpeed(burnSpeed: number) {
+    this.use();
+    if (this.unifBurnSpeed !== -1) {
+      gl.uniform1f(this.unifBurnSpeed, burnSpeed);
+    }
+  }
+  setFireDensity(fireDensity: number) {
+    this.use();
+    if (this.unifFireDensity !== -1) {
+      gl.uniform1f(this.unifFireDensity, fireDensity);
+    }
+  }
+
+  setIsMusicPlaying(isMusicPlaying: number) {
+    this.use();
+    if (this.unifIsMusicPlaying !== -1) {
+      gl.uniform1f(this.unifIsMusicPlaying, isMusicPlaying);
+    }
+  }
+  setAudioHighFreq(audioHighFreq: number) {
+    this.use();
+    if (this.unifAudioHighFreq !== -1) {
+      gl.uniform1f(this.unifAudioHighFreq, audioHighFreq);
+    }
+  }
+  setAudioLowFreq(audioLowFreq: number) {
+    this.use();
+    if (this.unifAudioLowFreq !== -1) {
+      gl.uniform1f(this.unifAudioLowFreq, audioLowFreq);
     }
   }
 
@@ -91,10 +205,16 @@ class ShaderProgram {
       gl.vertexAttribPointer(this.attrPos, 4, gl.FLOAT, false, 0, 0);
     }
 
+    if (this.attrNor != -1 && d.bindNor()) {
+      gl.enableVertexAttribArray(this.attrNor);
+      gl.vertexAttribPointer(this.attrNor, 4, gl.FLOAT, false, 0, 0);
+    }
+
     d.bindIdx();
     gl.drawElements(d.drawMode(), d.elemCount(), gl.UNSIGNED_INT, 0);
 
     if (this.attrPos != -1) gl.disableVertexAttribArray(this.attrPos);
+    if (this.attrNor != -1) gl.disableVertexAttribArray(this.attrNor);
   }
 };
 
