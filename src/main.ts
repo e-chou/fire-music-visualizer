@@ -37,12 +37,12 @@ let icosphere: Icosphere;
 let cube: Cube;
 let square: Square;
 let prevTesselations: number = 5;
-let prevSmokeInner: number[] = [0, 0, 0];
-let prevSmokeMiddle: number[] = [0, 0, 0];
-let prevSmokeOuter: number[] = [0, 0, 0];
-let prevFireInner: number[] = [0, 0, 0];
-let prevFireMiddle: number[] = [0, 0, 0];
-let prevFireOuter: number[] = [0, 0, 0];
+let prevSmokeInner: number[] = [0.0, 0.0, 0.0];
+let prevSmokeMiddle: number[] = [0.0, 0.0, 0.0];
+let prevSmokeOuter: number[] = [0.0, 0.0, 0.0];
+let prevFireInner: number[] = [0.0, 0.0, 0.0];
+let prevFireMiddle: number[] = [0.0, 0.0, 0.0];
+let prevFireOuter: number[] = [0.0, 0.0, 0.0];
 let prevBurnSpeed: number = 0.0;
 let prevFireDensity: number = 0.0;
 
