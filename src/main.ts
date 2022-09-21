@@ -18,7 +18,7 @@ const controls = {
 
   'Play music': playMusic,
 
-  fireInner: [0.0*255.0, 0.4*255.0, 0.0*255.0],
+  fireInner: [1.0*255.0, 0.4*255.0, 0.0*255.0],
   fireMiddle: [0.9*255.0, 0.1*255.0, 0.0*255.0],
   fireOuter: [0.1*255.0, 0.0*255.0, 0.3*255.0],
   smokeInner: [103.0, 20.0, 255.0],
