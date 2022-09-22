@@ -193,7 +193,7 @@ vec4 convertDistToColor(float dist, vec3 pos){
     pct = getGain(pct, 0.25); // gets rid of some of the nasty pink
     // bias based on sound (higher levels = redder)
     if(u_IsMusicPlaying == 1.0) {
-        pct = getBias(pct, 1.0-remap(u_AudioHighFreq, 0.0, 255.0, 0.4, 0.8));
+        pct = getBias(pct, 1.0-remap(u_AudioHighFreq, 0.0, 255.0, 0.0, 1.0));
     }
     return mix(bottomColor, topColor, pct);
 }
