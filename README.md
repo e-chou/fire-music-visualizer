@@ -1,3 +1,27 @@
+# [Live Demo](https://e-chou.github.io/fire-music-visualizer/index.html)
+
+## Ray Marched Volume
+
+In order to hit the volumetric fire-y look that I wanted, I faked a volume by ray marching. In my vertex shader I displaced the original sphere with two levels of noise (one low frequency high aplitude pass to make the overall shape less sphere like, and one high frequency low aplitude pass to give the surface more detailed distortion). Both of these displacements are animated over time by moving the input position based on time so the fire appears to be moving up. 
+
+Then in my fragment shader I mimicked ray marching an SDF. For my "SDF" (in quotes because its not fully accurate, more on that later), I added distance from the sphere with amount of displacement for the noise. I return color of each fragment based the distance this "SDF" returns, giving the fire a layer multicolored look. However, I wanted a way to make the fire look smaller and less dense so it could fade out at the top and pulse with the music. To do this, I actually use a fake radius (not the actual radius of the orignal sphere) in my "SDF". When this is lower it has the effect of looking like a smaller, thinner volume. I use an easing function to mix between values for this fake radius from the bottom to the top of the fire to give the illusion that the fire fades into smoke at the top. I also use another easing function to change the color and transparency of the smoke from bottom to top. 
+
+## Audio Input
+
+The other main feature I focused on was having my fire change based on audio input. I made it so a button in the website plays a song (I chose a song called burn lol I thought it was funny at first but around time 100 of hearing it I kind of regretted not picking a song I liked more). The amplitude of the lower frequency sounds in the song affects the fake radius, making the fire appear to pulse with the lower beats. The amplitude of the higher frequency sounds affect the color, so the fire seems to glow bright red at higher pitched percussion and vocals. Specifically, this value is plugged into a bias for the value that affects the transition between bottom and top colors of the fire. 
+
+## Input controls
+
+Color controls: These control the colors of the fire. The smoke controls are the color of the top of the mesh, and the fire controls are the color of the bottom of the mesh. The inner, middle, outer layers refer to the distance from the edge of the fire that the color is applied. 
+
+Burn speed: Burn speed controls how quickly the input position of the fbm is changed based on time, giving the illusion of the fire rising faster/slower. 
+
+Fire density: The fire density controls both the transparency of the fire and the "fake radius" in the SDF function. Combined, these make it look like the fire is getting denser/thinner.
+
+Reset: This button resets the above settings to defaults.
+
+Play music: This button plays and pauses the music (which loops when the song finishes).
+
 # [Project 1: Noise](https://github.com/CIS-566-Fall-2022/hw01-fireball-base)
 
 ## Objective
