@@ -60978,7 +60978,7 @@ if ( typeof window !== 'undefined' ) {
 /******/ 	
 /******/ 	/* webpack/runtime/publicPath */
 /******/ 	(() => {
-/******/ 		__webpack_require__.p = "/";
+/******/ 		__webpack_require__.p = "/fire-music-visualizer/";
 /******/ 	})();
 /******/ 	
 /************************************************************************/
